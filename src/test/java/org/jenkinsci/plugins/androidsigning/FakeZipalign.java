@@ -1,15 +1,12 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import org.jvnet.hudson.test.FakeLauncher;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
-
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.Proc;
-
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.List;
+import org.jvnet.hudson.test.FakeLauncher;
 
 class FakeZipalign implements FakeLauncher {
 
@@ -46,11 +43,11 @@ class FakeZipalign implements FakeLauncher {
             }
             long outSize = out.length(), inSize = in.length();
             if (outSize != inSize) {
-                throw new IOException("FakeZipalign copy output size " + outSize + " is different from input size " + inSize);
+                throw new IOException(
+                        "FakeZipalign copy output size " + outSize + " is different from input size " + inSize);
             }
             return new FinishedProc(0);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

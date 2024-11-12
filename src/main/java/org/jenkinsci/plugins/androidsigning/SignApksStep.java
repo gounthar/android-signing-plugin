@@ -1,35 +1,33 @@
 package org.jenkinsci.plugins.androidsigning;
 
 import com.google.inject.Inject;
-
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
-import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
-import org.jenkinsci.plugins.workflow.structs.DescribableHelper;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.Run;
 import hudson.model.TaskListener;
-
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
+import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
+import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousNonBlockingStepExecution;
+import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 public class SignApksStep extends AbstractStepImpl {
 
     @CheckForNull
     private String keyStoreId;
+
     @CheckForNull
     private String keyAlias;
+
     @CheckForNull
     private String apksToSign;
+
     private SignedApkMappingStrategy signedApkMapping;
     private String androidHome;
     private String zipalignPath;
@@ -38,8 +36,7 @@ public class SignApksStep extends AbstractStepImpl {
     private boolean archiveUnsignedApks = false;
 
     @DataBoundConstructor
-    public SignApksStep() {
-    }
+    public SignApksStep() {}
 
     @DataBoundSetter
     public void setKeyStoreId(String x) {
@@ -121,7 +118,6 @@ public class SignApksStep extends AbstractStepImpl {
     public String getZipalignPath() {
         return zipalignPath;
     }
-
 
     private static class SignApksStepExecution extends AbstractSynchronousNonBlockingStepExecution<Void> {
 

@@ -1,8 +1,10 @@
 package org.jenkinsci.plugins.androidsigning;
 
-
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -17,12 +19,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class ReadingKeyStoresTest {
 
@@ -32,7 +30,7 @@ public class ReadingKeyStoresTest {
     @BeforeClass
     public static void parseBaseKeys() throws Exception {
         BufferedReader in = new BufferedReader(new InputStreamReader(
-            ReadingKeyStoresTest.class.getResourceAsStream("/SignApksBuilderTest-key-exposed.pkcs8.pem")));
+                ReadingKeyStoresTest.class.getResourceAsStream("/SignApksBuilderTest-key-exposed.pkcs8.pem")));
         StringBuilder bareBase64 = new StringBuilder();
         String line;
         while ((line = in.readLine()) != null) {
@@ -46,7 +44,8 @@ public class ReadingKeyStoresTest {
         basePemKey = rsaKeys.generatePrivate(keySpec);
 
         CertificateFactory certs = CertificateFactory.getInstance("X.509");
-        basePemCert = certs.generateCertificate(ReadingKeyStoresTest.class.getResourceAsStream("/SignApksBuilderTest.pem"));
+        basePemCert =
+                certs.generateCertificate(ReadingKeyStoresTest.class.getResourceAsStream("/SignApksBuilderTest.pem"));
     }
 
     @Test
@@ -109,14 +108,12 @@ public class ReadingKeyStoresTest {
         KeyStore.PrivateKeyEntry entry = null;
         try {
             entry = (KeyStore.PrivateKeyEntry) store.getEntry("SignApksBuilderTest-noKeyPass", prot);
-        }
-        catch (UnrecoverableEntryException e) {
+        } catch (UnrecoverableEntryException e) {
         }
         Key key = null;
         try {
             key = store.getKey("SignApksBuilderTest-noKeyPass", prot.getPassword());
-        }
-        catch (UnrecoverableKeyException e) {
+        } catch (UnrecoverableKeyException e) {
         }
 
         assertThat(entry, nullValue());
@@ -153,5 +150,4 @@ public class ReadingKeyStoresTest {
         assertThat(chain.length, equalTo(1));
         assertThat(chain[0], equalTo(basePemCert));
     }
-
 }

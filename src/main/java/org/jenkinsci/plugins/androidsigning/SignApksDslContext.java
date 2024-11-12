@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.androidsigning;
 
-
 import hudson.Extension;
 import javaposse.jobdsl.dsl.Context;
 import javaposse.jobdsl.dsl.helpers.step.StepContext;
@@ -66,6 +65,7 @@ public class SignApksDslContext extends ContextExtensionPoint {
 
     public static class SignedApkMappingContext implements Context {
         private final SignApksBuilder builder;
+
         SignedApkMappingContext(SignApksBuilder builder) {
             this.builder = builder;
         }

@@ -1,10 +1,6 @@
 package org.jenkinsci.plugins.androidsigning;
 
-
 import com.cloudbees.plugins.credentials.common.StandardCertificateCredentials;
-
-import org.apache.commons.lang.StringUtils;
-
 import java.io.Serializable;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -12,13 +8,14 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.Enumeration;
-
+import org.apache.commons.lang.StringUtils;
 
 public class SigningComponents implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static SigningComponents fromCredentials(StandardCertificateCredentials creds, String keyAlias) throws GeneralSecurityException {
+    public static SigningComponents fromCredentials(StandardCertificateCredentials creds, String keyAlias)
+            throws GeneralSecurityException {
         KeyStore keyStore = creds.getKeyStore();
         if (StringUtils.isEmpty(keyAlias)) {
             keyAlias = null;
@@ -28,7 +25,8 @@ public class SigningComponents implements Serializable {
                     String entryAlias = aliases.nextElement();
                     if (keyStore.isKeyEntry(entryAlias)) {
                         if (keyAlias != null) {
-                            throw new UnrecoverableKeyException("no key alias was given and there is more than one entry in key store");
+                            throw new UnrecoverableKeyException(
+                                    "no key alias was given and there is more than one entry in key store");
                         }
                         keyAlias = entryAlias;
                     }
@@ -48,19 +46,21 @@ public class SigningComponents implements Serializable {
         KeyStore.PrivateKeyEntry entry;
         try {
             entry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyAlias, protection);
-        }
-        catch(NullPointerException e) {
+        } catch (NullPointerException e) {
             // empty passwords could be pessimistically handled, but this way if Credentials Plugin
             // changes to load key stores (CertificateCredentialsImpl) with empty password instead
             // of null, this should still work
             if (StringUtils.isEmpty(password)) {
                 throw new NullKeyStorePasswordException(
-                    "the password for key store credential " + creds.getId() + " is null - use the Credentials Plugin to configure a non-empty password", e);
+                        "the password for key store credential " + creds.getId()
+                                + " is null - use the Credentials Plugin to configure a non-empty password",
+                        e);
             }
             throw e;
         }
         if (entry == null) {
-            throw new GeneralSecurityException("key store credential " + creds.getId() + " has no entry named " + keyAlias);
+            throw new GeneralSecurityException(
+                    "key store credential " + creds.getId() + " has no entry named " + keyAlias);
         }
         PrivateKey key = entry.getPrivateKey();
         Certificate[] certChain = entry.getCertificateChain();

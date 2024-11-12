@@ -1,22 +1,20 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nonnull;
-
 import hudson.Extension;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import hudson.FilePath;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
-public abstract class SignedApkMappingStrategy extends AbstractDescribableImpl<SignedApkMappingStrategy> implements ExtensionPoint {
+public abstract class SignedApkMappingStrategy extends AbstractDescribableImpl<SignedApkMappingStrategy>
+        implements ExtensionPoint {
 
     public abstract FilePath destinationForUnsignedApk(FilePath unsignedApk, FilePath workspace);
 
@@ -40,13 +38,15 @@ public abstract class SignedApkMappingStrategy extends AbstractDescribableImpl<S
     public static class UnsignedApkBuilderDirMapping extends SignedApkMappingStrategy {
 
         @DataBoundConstructor
-        public UnsignedApkBuilderDirMapping() {
-        }
+        public UnsignedApkBuilderDirMapping() {}
 
         @Override
         public FilePath destinationForUnsignedApk(FilePath unsignedApk, FilePath workspace) {
             String strippedName = unqualifiedNameOfUnsignedApk(unsignedApk);
-            return workspace.child(SignApksBuilder.BUILDER_DIR).child(unsignedApk.getName()).child(strippedName + "-signed.apk");
+            return workspace
+                    .child(SignApksBuilder.BUILDER_DIR)
+                    .child(unsignedApk.getName())
+                    .child(strippedName + "-signed.apk");
         }
 
         @Extension
@@ -63,8 +63,7 @@ public abstract class SignedApkMappingStrategy extends AbstractDescribableImpl<S
     public static class UnsignedApkSiblingMapping extends SignedApkMappingStrategy {
 
         @DataBoundConstructor
-        public UnsignedApkSiblingMapping() {
-        }
+        public UnsignedApkSiblingMapping() {}
 
         @Override
         public FilePath destinationForUnsignedApk(FilePath unsignedApk, FilePath workspace) {
@@ -85,5 +84,4 @@ public abstract class SignedApkMappingStrategy extends AbstractDescribableImpl<S
             }
         }
     }
-
 }

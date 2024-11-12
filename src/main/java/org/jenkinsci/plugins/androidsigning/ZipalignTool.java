@@ -1,22 +1,18 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import org.apache.commons.lang.StringUtils;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.VersionNumber;
-
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
 class ZipalignTool {
 
@@ -37,7 +33,9 @@ class ZipalignTool {
         String androidHome = env.get(ENV_ANDROID_HOME);
         if (!StringUtils.isEmpty(androidHome)) {
             androidHome = env.expand(androidHome);
-            logger.printf("[SignApksBuilder] searching environment variable %s=%s for zipalign...%n", ENV_ANDROID_HOME, androidHome);
+            logger.printf(
+                    "[SignApksBuilder] searching environment variable %s=%s for zipalign...%n",
+                    ENV_ANDROID_HOME, androidHome);
             return findInAndroidHome(androidHome, workspace, logger);
         }
 
@@ -48,25 +46,27 @@ class ZipalignTool {
             return findInPathEnvVar(envPath, workspace, logger);
         }
 
-        throw new AbortException("failed to find zipalign: no environment variable " + ENV_ZIPALIGN_PATH + " or " + ENV_ANDROID_HOME + " or " + ENV_PATH);
+        throw new AbortException("failed to find zipalign: no environment variable " + ENV_ZIPALIGN_PATH + " or "
+                + ENV_ANDROID_HOME + " or " + ENV_PATH);
     }
 
-    private static FilePath findInAndroidHome(String androidHome, FilePath workspace, PrintStream logger) throws AbortException {
+    private static FilePath findInAndroidHome(String androidHome, FilePath workspace, PrintStream logger)
+            throws AbortException {
 
         FilePath buildTools = workspace.child(androidHome).child("build-tools");
         List<FilePath> versionDirs;
         try {
             versionDirs = buildTools.listDirectories();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace(logger);
             throw new AbortException(String.format(
-                "failed to find zipalign: error listing build-tools versions in %s: %s",
-                buildTools.getRemote(), e.getLocalizedMessage()));
+                    "failed to find zipalign: error listing build-tools versions in %s: %s",
+                    buildTools.getRemote(), e.getLocalizedMessage()));
         }
 
         if (versionDirs == null || versionDirs.isEmpty()) {
-            throw new AbortException("failed to find zipalign: no build-tools directory in Android home path " + androidHome);
+            throw new AbortException(
+                    "failed to find zipalign: no build-tools directory in Android home path " + androidHome);
         }
 
         SortedMap<VersionNumber, FilePath> versions = new TreeMap<>();
@@ -78,26 +78,28 @@ class ZipalignTool {
 
         if (versions.isEmpty()) {
             throw new AbortException(
-                "failed to find zipalign: no build-tools versions in Android home path " + buildTools);
+                    "failed to find zipalign: no build-tools versions in Android home path " + buildTools);
         }
 
         VersionNumber latest = versions.lastKey();
         buildTools = versions.get(latest);
         FilePath zipalign = zipalignOrZipalignExe(buildTools, logger);
         if (zipalign != null) {
-            logger.printf("[SignApksBuilder] found zipalign in Android SDK's latest build tools: %s%n", zipalign.getRemote());
+            logger.printf(
+                    "[SignApksBuilder] found zipalign in Android SDK's latest build tools: %s%n", zipalign.getRemote());
             return zipalign;
         }
 
-        throw new AbortException("failed to find zipalign: no zipalign found in latest Android build tools: " + buildTools);
+        throw new AbortException(
+                "failed to find zipalign: no zipalign found in latest Android build tools: " + buildTools);
     }
 
-    private static FilePath findInPathEnvVar(String envPath, FilePath workspace, PrintStream logger) throws AbortException {
+    private static FilePath findInPathEnvVar(String envPath, FilePath workspace, PrintStream logger)
+            throws AbortException {
         String separator = null;
         try {
             separator = pathSeparatorForWorkspace(workspace);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.println("[SignApksBuilder] error determining path separator:");
             e.printStackTrace(logger);
             return null;
@@ -112,8 +114,7 @@ class ZipalignTool {
             }
             try {
                 dirPath = androidHomeAncestorOfPath(dirPath, logger);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.println("error searching " + ENV_PATH + " environment variable: " + e.getMessage());
                 e.printStackTrace(logger);
             }
@@ -121,8 +122,7 @@ class ZipalignTool {
                 logger.printf("[SignApksBuilder] found potential Android home in %s dir %s%n", ENV_PATH, dir);
                 try {
                     return findInAndroidHome(dirPath.getRemote(), workspace, logger);
-                }
-                catch (AbortException e) {
+                } catch (AbortException e) {
                     logger.printf("error searching Android home found in " + ENV_PATH + ": " + e.getMessage());
                 }
             }
@@ -144,14 +144,12 @@ class ZipalignTool {
                     return path.getParent();
                 }
             }
-        }
-        else if ("tools".equals(path.getName())) {
+        } else if ("tools".equals(path.getName())) {
             FilePath androidTool = path.child("android");
             if (commandOrWinCommandAtPath(androidTool, logger) != null) {
                 return path.getParent();
             }
-        }
-        else {
+        } else {
             FilePath androidTool = path.child("tools").child("android");
             if (commandOrWinCommandAtPath(androidTool, logger) != null) {
                 return path;
@@ -168,8 +166,7 @@ class ZipalignTool {
                 parent = zipalignOrDir;
                 zipalignOrDir = zipalignOrDir.child("zipalign");
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.println("[SignApksBuilder] error checking for zipalign at path " + zipalignOrDir);
             e.printStackTrace(logger);
         }
@@ -202,8 +199,7 @@ class ZipalignTool {
             if (path.exists()) {
                 return path;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.println("[SignApksBuilder] error checking path " + path);
             e.printStackTrace(logger);
         }
@@ -218,7 +214,12 @@ class ZipalignTool {
     private final String overrideZipalignPath;
     private FilePath zipalign;
 
-    ZipalignTool(@Nonnull EnvVars buildEnv, @Nonnull FilePath workspace, @Nonnull PrintStream logger, @Nullable String overrideAndroidHome, @Nullable String overrideZipalignPath) {
+    ZipalignTool(
+            @Nonnull EnvVars buildEnv,
+            @Nonnull FilePath workspace,
+            @Nonnull PrintStream logger,
+            @Nullable String overrideAndroidHome,
+            @Nullable String overrideZipalignPath) {
         this.buildEnv = buildEnv;
         this.workspace = workspace;
         this.logger = logger;
@@ -231,13 +232,12 @@ class ZipalignTool {
             if (!StringUtils.isEmpty(overrideZipalignPath)) {
                 logger.printf("[SignApksBuilder] zipalign path explicitly set to %s%n", overrideZipalignPath);
                 zipalign = zipalignOrZipalignExe(workspace.child(buildEnv.expand(overrideZipalignPath)), logger);
-            }
-            else if (!StringUtils.isEmpty(overrideAndroidHome)) {
-                logger.printf("[SignApksBuilder] zipalign %s explicitly set to %s%n", ENV_ANDROID_HOME, overrideAndroidHome);
+            } else if (!StringUtils.isEmpty(overrideAndroidHome)) {
+                logger.printf(
+                        "[SignApksBuilder] zipalign %s explicitly set to %s%n", ENV_ANDROID_HOME, overrideAndroidHome);
                 String expandedAndroidHome = buildEnv.expand(overrideAndroidHome);
                 zipalign = findInAndroidHome(expandedAndroidHome, workspace, this.logger);
-            }
-            else {
+            } else {
                 zipalign = findFromEnv(buildEnv, workspace, logger);
             }
 
@@ -247,10 +247,11 @@ class ZipalignTool {
         }
 
         return new ArgumentListBuilder()
-            .add(zipalign.getRemote())
-            .add("-f")
-            .add("-p").add("4")
-            .add(unsignedApk)
-            .add(outputApk);
+                .add(zipalign.getRemote())
+                .add("-f")
+                .add("-p")
+                .add("4")
+                .add(unsignedApk)
+                .add(outputApk);
     }
 }

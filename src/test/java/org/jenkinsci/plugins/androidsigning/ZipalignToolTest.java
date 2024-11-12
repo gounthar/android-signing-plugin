@@ -1,26 +1,19 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestName;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.junit.Assert.assertThat;
 
+import hudson.EnvVars;
+import hudson.FilePath;
+import hudson.util.ArgumentListBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
-
-import hudson.EnvVars;
-import hudson.FilePath;
-import hudson.Util;
-import hudson.util.ArgumentListBuilder;
-
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.Assert.assertThat;
-
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class ZipalignToolTest {
 
@@ -149,7 +142,7 @@ public class ZipalignToolTest {
 
         assertThat(cmd.toString(), startsWith(androidHomeZipalign.getRemote()));
     }
-    
+
     @Test
     public void findsZipalignInPathEnvVarWithZipalignParentDir() throws Exception {
         FilePath zipalignDir = altZipalign.getParent();
@@ -258,7 +251,8 @@ public class ZipalignToolTest {
         FilePath explicitZipalign = workspace.createTempDir("my-zipalign", "").child("zipalign");
         explicitZipalign.write("# fake zipalign", "utf-8");
 
-        ZipalignTool zipalign = new ZipalignTool(envVars, workspace, System.out, explicitAndroidHome.getRemote(), explicitZipalign.getRemote());
+        ZipalignTool zipalign = new ZipalignTool(
+                envVars, workspace, System.out, explicitAndroidHome.getRemote(), explicitZipalign.getRemote());
         ArgumentListBuilder cmd = zipalign.commandFor("test.apk", "test-aligned.apk");
 
         assertThat(cmd.toString(), startsWith(explicitZipalign.getRemote()));
@@ -268,10 +262,12 @@ public class ZipalignToolTest {
     }
 
     @Test
-    public void triesWindowsExeIfEnvAndroidHomeZipalignDoesNotExist() throws IOException, InterruptedException, URISyntaxException {
+    public void triesWindowsExeIfEnvAndroidHomeZipalignDoesNotExist()
+            throws IOException, InterruptedException, URISyntaxException {
         URL androidHomeUrl = getClass().getResource("/win-android");
         FilePath winAndroidHome = new FilePath(new File(androidHomeUrl.toURI()));
-        FilePath winAndroidHomeZipalign = winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
+        FilePath winAndroidHomeZipalign =
+                winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
 
         EnvVars envVars = new EnvVars();
         envVars.put(ZipalignTool.ENV_ANDROID_HOME, winAndroidHome.getRemote());
@@ -285,7 +281,8 @@ public class ZipalignToolTest {
     public void triesWindowsExeIfEnvZipalignDoesNotExist() throws Exception {
         URL androidHomeUrl = getClass().getResource("/win-android");
         FilePath winAndroidHome = new FilePath(new File(androidHomeUrl.toURI()));
-        FilePath suffixedZipalign = winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
+        FilePath suffixedZipalign =
+                winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
         FilePath unsuffixedZipalign = suffixedZipalign.getParent().child("zipalign");
 
         EnvVars envVars = new EnvVars();
@@ -300,7 +297,8 @@ public class ZipalignToolTest {
     public void triesWindowsExeIfExplicitAndroidHomeZipalignDoesNotExist() throws Exception {
         URL androidHomeUrl = getClass().getResource("/win-android");
         FilePath winAndroidHome = new FilePath(new File(androidHomeUrl.toURI()));
-        FilePath winAndroidHomeZipalign = winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
+        FilePath winAndroidHomeZipalign =
+                winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
 
         EnvVars envVars = new EnvVars();
         ZipalignTool zipalign = new ZipalignTool(envVars, workspace, System.out, winAndroidHome.getRemote(), null);
@@ -313,7 +311,8 @@ public class ZipalignToolTest {
     public void triesWindowsExeIfExplicitZipalignDoesNotExist() throws Exception {
         URL androidHomeUrl = getClass().getResource("/win-android");
         FilePath winAndroidHome = new FilePath(new File(androidHomeUrl.toURI()));
-        FilePath suffixedZipalign = winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
+        FilePath suffixedZipalign =
+                winAndroidHome.child("build-tools").child("1.0").child("zipalign.exe");
         FilePath unsuffixedZipalign = suffixedZipalign.getParent().child("zipalign");
 
         EnvVars envVars = new EnvVars();

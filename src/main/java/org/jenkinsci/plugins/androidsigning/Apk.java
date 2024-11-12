@@ -1,17 +1,11 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-
+import javax.annotation.Nonnull;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 @Deprecated
 public final class Apk extends AbstractDescribableImpl<Apk> {
@@ -23,7 +17,7 @@ public final class Apk extends AbstractDescribableImpl<Apk> {
 
     // renamed fields
     @SuppressWarnings("unused")
-    transient private String selection;
+    private transient String selection;
 
     /**
      *
@@ -68,7 +62,8 @@ public final class Apk extends AbstractDescribableImpl<Apk> {
 
     @Extension
     public static class DescriptorImpl extends Descriptor<Apk> {
-        @Override @Nonnull
+        @Override
+        @Nonnull
         public String getDisplayName() {
             return "APK Signing Entry";
         }
@@ -93,5 +88,4 @@ public final class Apk extends AbstractDescribableImpl<Apk> {
     public boolean getArchiveSignedApks() {
         return archiveSignedApks;
     }
-
 }

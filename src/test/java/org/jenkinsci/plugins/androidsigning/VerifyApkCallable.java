@@ -1,23 +1,15 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import com.android.apksig.ApkSigner;
 import com.android.apksig.ApkVerifier;
-
+import hudson.model.TaskListener;
+import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import hudson.AbortException;
-import hudson.model.TaskListener;
-import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
-
 
 class VerifyApkCallable extends MasterToSlaveFileCallable<VerifyApkCallable.VerifyResult> {
 
@@ -52,7 +44,6 @@ class VerifyApkCallable extends MasterToSlaveFileCallable<VerifyApkCallable.Veri
             }
             this.errors = messages.toArray(errors);
         }
-
     }
 
     private final TaskListener listener;
@@ -68,8 +59,7 @@ class VerifyApkCallable extends MasterToSlaveFileCallable<VerifyApkCallable.Veri
         try {
             ApkVerifier.Result result = verifier.verify();
             return new VerifyResult(result);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace(listener.getLogger());
             throw new IOException(e.getMessage());
         }

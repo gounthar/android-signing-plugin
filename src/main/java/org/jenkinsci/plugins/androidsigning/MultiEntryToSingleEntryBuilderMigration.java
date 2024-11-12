@@ -1,21 +1,17 @@
 package org.jenkinsci.plugins.androidsigning;
 
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import hudson.Extension;
-import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.Project;
 import hudson.model.listeners.ItemListener;
 import hudson.tasks.Builder;
 import hudson.util.DescribableList;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jenkins.model.Jenkins;
-
 
 @Extension
 public class MultiEntryToSingleEntryBuilderMigration extends ItemListener {
@@ -30,15 +26,15 @@ public class MultiEntryToSingleEntryBuilderMigration extends ItemListener {
             return;
         }
         List<Project> jobs = jenkins.getAllItems(Project.class);
-        for (Project<?,?> job : jobs) {
+        for (Project<?, ?> job : jobs) {
             migrateBuildersOfJob(job);
         }
     }
 
-    private void migrateBuildersOfJob(Project<?,?> job) {
+    private void migrateBuildersOfJob(Project<?, ?> job) {
         DescribableList<Builder, Descriptor<Builder>> old = job.getBuildersList();
         boolean isMigrated = old.stream().allMatch(builder -> {
-            if (builder instanceof  SignApksBuilder) {
+            if (builder instanceof SignApksBuilder) {
                 return ((SignApksBuilder) builder).isMigrated();
             }
             return true;
@@ -50,17 +46,17 @@ public class MultiEntryToSingleEntryBuilderMigration extends ItemListener {
         for (Builder builder : old) {
             if (builder instanceof SignApksBuilder) {
                 migrated.addAll(SignApksBuilder.singleEntryBuildersFromEntriesOfBuilder((SignApksBuilder) builder));
-            }
-            else {
+            } else {
                 migrated.add(builder);
             }
         }
         try {
             job.getBuildersList().replaceBy(migrated);
-        }
-        catch (IOException e) {
-            log.log(Level.WARNING, "error migrating " + SignApksBuilder.class.getSimpleName() + " steps of job " + job, e);
+        } catch (IOException e) {
+            log.log(
+                    Level.WARNING,
+                    "error migrating " + SignApksBuilder.class.getSimpleName() + " steps of job " + job,
+                    e);
         }
     }
-
 }

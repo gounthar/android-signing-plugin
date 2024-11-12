@@ -1,20 +1,16 @@
 package org.jenkinsci.plugins.androidsigning;
 
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
-
-import javax.annotation.Nonnull;
-
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.Descriptor;
-
+import javax.annotation.Nonnull;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 public class TestSignedApkMapping extends SignedApkMappingStrategy {
 
     @DataBoundConstructor
-    public TestSignedApkMapping() {
-    }
+    public TestSignedApkMapping() {}
 
     @Override
     public FilePath destinationForUnsignedApk(FilePath unsignedApk, FilePath workspace) {
@@ -30,5 +26,4 @@ public class TestSignedApkMapping extends SignedApkMappingStrategy {
             return TestSignedApkMapping.class.getSimpleName();
         }
     }
-
 }

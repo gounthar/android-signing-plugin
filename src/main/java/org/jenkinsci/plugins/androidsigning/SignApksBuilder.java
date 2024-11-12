@@ -1,14 +1,14 @@
 /*
- ===========================================================
- Apache License, Version 2.0 - Derivative Work modified file
- -----------------------------------------------------------
- This file has been modified by BIT Systems.
- All modifications are copyright (c) BIT Systems, 2016.
- ===========================================================
+===========================================================
+Apache License, Version 2.0 - Derivative Work modified file
+-----------------------------------------------------------
+This file has been modified by BIT Systems.
+All modifications are copyright (c) BIT Systems, 2016.
+===========================================================
 
- This file was originally named SignArtifactsPlugin.java.  The contents of this
- file have been signifcantly modified from the original Work contents.
- */
+This file was originally named SignArtifactsPlugin.java.  The contents of this
+file have been signifcantly modified from the original Work contents.
+*/
 
 package org.jenkinsci.plugins.androidsigning;
 
@@ -17,34 +17,6 @@ import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardCertificateCredentials;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
-
-import org.apache.commons.lang.StringUtils;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-import org.kohsuke.stapler.QueryParameter;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.annotation.Nonnull;
-
 import hudson.AbortException;
 import hudson.EnvVars;
 import hudson.Extension;
@@ -64,10 +36,34 @@ import hudson.tasks.Builder;
 import hudson.util.ArgumentListBuilder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import javax.annotation.Nonnull;
 import jenkins.MasterToSlaveFileCallable;
 import jenkins.model.Jenkins;
 import jenkins.tasks.SimpleBuildStep;
 import jenkins.util.BuildListenerAdapter;
+import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 
 public class SignApksBuilder extends Builder implements SimpleBuildStep {
 
@@ -108,16 +104,16 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
     private boolean archiveUnsignedApks = false;
     private boolean skipZipalign = false;
 
-    transient private List<Apk> entries;
+    private transient List<Apk> entries;
 
     @Deprecated
     public SignApksBuilder(List<Apk> entries) {
         this();
         if (entries.size() == 1) {
             setPropertiesFromOldSigningEntry(entries.get(0));
-        }
-        else if (entries.size() > 1) {
-            throw new UnsupportedOperationException("this constructor is deprecated; use multiple build steps instead of multiple signing entries");
+        } else if (entries.size() > 1) {
+            throw new UnsupportedOperationException(
+                    "this constructor is deprecated; use multiple build steps instead of multiple signing entries");
         }
     }
 
@@ -141,7 +137,7 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
         setArchiveSignedApks(entry.getArchiveSignedApks());
         setArchiveUnsignedApks(entry.getArchiveUnsignedApks());
     }
-    
+
     private boolean isIntermediateFailure(Run build) {
         // TODO: does this work in pipeline?
         Result result = build.getResult();
@@ -239,7 +235,12 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath workspace, @Nonnull Launcher launcher, @Nonnull TaskListener listener) throws InterruptedException, IOException {
+    public void perform(
+            @Nonnull Run<?, ?> run,
+            @Nonnull FilePath workspace,
+            @Nonnull Launcher launcher,
+            @Nonnull TaskListener listener)
+            throws InterruptedException, IOException {
         if (isIntermediateFailure(run)) {
             listener.getLogger().println("[SignApksBuilder] skipping Sign APKs step because a previous step failed");
             return;
@@ -253,7 +254,8 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             return;
         }
 
-        ArgumentListBuilder command = new ArgumentListBuilder().add("echo").addQuoted("resolving effective environment");
+        ArgumentListBuilder command =
+                new ArgumentListBuilder().add("echo").addQuoted("resolving effective environment");
         command.toWindowsCommand();
         if (!launcher.isUnix()) {
             command = command.toWindowsCommand();
@@ -262,9 +264,10 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
         Launcher.ProcStarter getEffectiveEnv = launcher.launch().pwd(workspace).cmds(command);
         try {
             getEffectiveEnv.join();
-        }
-        catch (Exception e) {
-            listener.getLogger().println("[SignApksBuilder] error resolving effective script environment, but this does not necessarily fail your build:");
+        } catch (Exception e) {
+            listener.getLogger()
+                    .println(
+                            "[SignApksBuilder] error resolving effective script environment, but this does not necessarily fail your build:");
             e.printStackTrace(listener.getLogger());
         }
         String[] envLines = getEffectiveEnv.envs();
@@ -277,7 +280,7 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
         if (run instanceof AbstractBuild) {
             EnvVars runEnv = run.getEnvironment(listener);
             env.overrideExpandingAll(runEnv);
-            env.overrideExpandingAll(((AbstractBuild<?,?>) run).getBuildVariables());
+            env.overrideExpandingAll(((AbstractBuild<?, ?>) run).getBuildVariables());
         }
         env.overrideAll(shellEnv);
 
@@ -286,15 +289,15 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
         zipalignDir.mkdirs();
 
         ZipalignTool zipalign = new ZipalignTool(env, workspace, listener.getLogger(), androidHome, zipalignPath);
-        Map<String,String> apksToArchive = new LinkedHashMap<>();
+        Map<String, String> apksToArchive = new LinkedHashMap<>();
 
         StandardCertificateCredentials keyStoreCredential = getKeystore(getKeyStoreId(), run.getParent());
         SigningComponents signingParams;
         try {
             signingParams = SigningComponents.fromCredentials(keyStoreCredential, getKeyAlias());
-        }
-        catch (GeneralSecurityException e) {
-            String message = "Error reading signing key from key store credential " + keyStoreCredential.getId() + ": " + e.getMessage();
+        } catch (GeneralSecurityException e) {
+            String message = "Error reading signing key from key store credential " + keyStoreCredential.getId() + ": "
+                    + e.getMessage();
             listener.fatalError(message);
             e.printStackTrace(listener.getLogger());
             throw new AbortException(message);
@@ -325,20 +328,21 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             if (skipZipalign) {
                 listener.getLogger().printf("[SignApksBuilder] skipping zipalign for unsigned apk %s", unsignedApk);
                 alignedApk = unsignedApk;
-            }
-            else {
-                ArgumentListBuilder zipalignCommand = zipalign.commandFor(unsignedApk.getRemote(), alignedApk.getRemote());
+            } else {
+                ArgumentListBuilder zipalignCommand =
+                        zipalign.commandFor(unsignedApk.getRemote(), alignedApk.getRemote());
                 listener.getLogger().printf("[SignApksBuilder] %s%n", zipalignCommand);
                 int zipalignResult = launcher.launch()
-                    .cmds(zipalignCommand)
-                    .pwd(workspace)
-                    .stdout(listener)
-                    .stderr(listener.getLogger())
-                    .join();
+                        .cmds(zipalignCommand)
+                        .pwd(workspace)
+                        .stdout(listener)
+                        .stderr(listener.getLogger())
+                        .join();
 
                 if (zipalignResult != 0) {
                     listener.fatalError("[SignApksBuilder] zipalign failed: exit code %d", zipalignResult);
-                    throw new AbortException(String.format("zipalign failed on APK %s: exit code %d", unsignedApk, zipalignResult));
+                    throw new AbortException(
+                            String.format("zipalign failed on APK %s: exit code %d", unsignedApk, zipalignResult));
                 }
             }
 
@@ -355,14 +359,21 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             if (!signedParent.exists()) {
                 signedParent.mkdirs();
             }
-            SignApkCallable signApk = new SignApkCallable(signingParams.key, signingParams.certChain, signingParams.v1SigName, signedApk.getRemote(), listener);
+            SignApkCallable signApk = new SignApkCallable(
+                    signingParams.key,
+                    signingParams.certChain,
+                    signingParams.v1SigName,
+                    signedApk.getRemote(),
+                    listener);
             alignedApk.act(signApk);
 
             listener.getLogger().printf("[SignApksBuilder] signed APK %s%n", signedRelName);
 
             if (getArchiveUnsignedApks()) {
                 listener.getLogger().printf("[SignApksBuilder] archiving unsigned APK %s%n", unsignedApk);
-                apksToArchive.put(archivePrefix + unsignedApk.getName() + "/" + unsignedApk.getName(), relativeToWorkspace(workspace, unsignedApk));
+                apksToArchive.put(
+                        archivePrefix + unsignedApk.getName() + "/" + unsignedApk.getName(),
+                        relativeToWorkspace(workspace, unsignedApk));
             }
             if (getArchiveSignedApks()) {
                 listener.getLogger().printf("[SignApksBuilder] archiving signed APK %s%n", signedRelName);
@@ -416,7 +427,7 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             }
             ListBoxModel items = new ListBoxModel();
             List<StandardCertificateCredentials> keys = CredentialsProvider.lookupCredentials(
-                StandardCertificateCredentials.class, parent, ACL.SYSTEM, SignApksBuilder.NO_REQUIREMENTS);
+                    StandardCertificateCredentials.class, parent, ACL.SYSTEM, SignApksBuilder.NO_REQUIREMENTS);
             for (StandardCertificateCredentials key : keys) {
                 String id = key.getId();
                 String label = key.getDescription();
@@ -429,12 +440,14 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
         }
 
         @SuppressWarnings("unused")
-        public FormValidation doCheckAlias(@AncestorInPath AbstractProject project, @QueryParameter String value) throws IOException {
+        public FormValidation doCheckAlias(@AncestorInPath AbstractProject project, @QueryParameter String value)
+                throws IOException {
             return FormValidation.validateRequired(value);
         }
 
         @SuppressWarnings("unused")
-        public FormValidation doCheckApksToSign(@AncestorInPath AbstractProject project, @QueryParameter String value) throws IOException {
+        public FormValidation doCheckApksToSign(@AncestorInPath AbstractProject project, @QueryParameter String value)
+                throws IOException {
             if (project == null) {
                 return FormValidation.warning(Messages.validation_noProject());
             }
@@ -449,8 +462,7 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             for (String glob : globs) {
                 try {
                     msg = someWorkspace.validateAntFileMask(value, FilePath.VALIDATE_ANT_FILE_MASK_BOUND);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     msg = Messages.validation_globSearchLimitReached(FilePath.VALIDATE_ANT_FILE_MASK_BOUND);
                 }
                 if (msg != null) {
@@ -459,7 +471,6 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             }
             return FormValidation.ok();
         }
-
     }
 
     static class SignApkCallable extends MasterToSlaveFileCallable<Void> {
@@ -472,7 +483,8 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
         private final String outputApk;
         private final TaskListener listener;
 
-        SignApkCallable(PrivateKey key, Certificate[] certChain, String v1SigName, String outputApk, TaskListener listener) {
+        SignApkCallable(
+                PrivateKey key, Certificate[] certChain, String v1SigName, String outputApk, TaskListener listener) {
             this.key = key;
             this.certChain = certChain;
             this.v1SigName = v1SigName;
@@ -499,26 +511,26 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
             List<ApkSigner.SignerConfig> signerConfigs = Collections.singletonList(signerConfig);
 
             ApkSigner.Builder signerBuilder = new ApkSigner.Builder(signerConfigs)
-                .setInputApk(inputApkFile)
-                .setOutputApk(outputApkFile)
-                .setOtherSignersSignaturesPreserved(false)
-                // TODO: add to jenkins descriptor
-                .setV1SigningEnabled(true)
-                .setV2SigningEnabled(true)
-                .setV3SigningEnabled(true);
+                    .setInputApk(inputApkFile)
+                    .setOutputApk(outputApkFile)
+                    .setOtherSignersSignaturesPreserved(false)
+                    // TODO: add to jenkins descriptor
+                    .setV1SigningEnabled(true)
+                    .setV2SigningEnabled(true)
+                    .setV3SigningEnabled(true);
 
             ApkSigner signer = signerBuilder.build();
             try {
                 signer.sign();
-            }
-            catch (Exception e) {
-                PrintWriter details = listener.fatalError("[SignApksBuilder] error signing APK %s", inputApkFile.getAbsolutePath());
+            } catch (Exception e) {
+                PrintWriter details =
+                        listener.fatalError("[SignApksBuilder] error signing APK %s", inputApkFile.getAbsolutePath());
                 e.printStackTrace(details);
-                throw new AbortException("failed to sign APK " + inputApkFile.getAbsolutePath() + ": " + e.getLocalizedMessage());
+                throw new AbortException(
+                        "failed to sign APK " + inputApkFile.getAbsolutePath() + ": " + e.getLocalizedMessage());
             }
 
             return null;
         }
     }
-
 }
