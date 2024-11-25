@@ -42,6 +42,15 @@ public class TestKeyStore implements TestRule {
         this.password = password;
     }
 
+    /**
+     * Applies credentials before executing the base statement and removes them afterwards.
+     * This method wraps the given base statement with credential management logic.
+     * 
+     * @param base The base Statement to be executed
+     * @param description The Description of the test (not used in this implementation)
+     * @return A new Statement that adds credential management around the base statement
+     * @throws Throwable If an exception occurs during the execution of the base statement
+     */
     @Override
     public Statement apply(Statement base, Description description) {
         return new Statement() {
@@ -58,6 +67,17 @@ public class TestKeyStore implements TestRule {
         };
     }
 
+    /**
+     * Adds credentials to the Jenkins instance for testing purposes.
+     * 
+     * This method reads a keystore from a resource file, encodes it in base64,
+     * creates a CertificateCredentialsImpl object, and adds it to the global
+     * credentials store of the Jenkins instance. If the Jenkins instance is null,
+     * the method returns without doing anything.
+     * 
+     * @throws RuntimeException if an exception occurs during the process of
+     *         reading the keystore, encoding it, or adding the credentials
+     */
     void addCredentials() {
         if (testJenkins.jenkins == null) {
             return;
@@ -78,6 +98,16 @@ public class TestKeyStore implements TestRule {
         }
     }
 
+    /**
+     * Removes the stored credentials from the Jenkins credential store.
+     * 
+     * This method attempts to remove the credentials from the global domain of the
+     * Jenkins credential store. If the Jenkins instance is not initialized, the
+     * method returns without performing any action. If an IOException occurs during
+     * the removal process, it is wrapped in a RuntimeException and thrown.
+     * 
+     * @throws RuntimeException if an IOException occurs while removing the credentials
+     */
     void removeCredentials() {
         if (testJenkins.jenkins == null) {
             return;
