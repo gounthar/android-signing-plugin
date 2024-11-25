@@ -549,6 +549,15 @@ public class SignApksBuilderTest {
         assertThat(zipalignLauncher.lastProc, nullValue());
     }
 
+    /**
+     * Verifies the correct submission and persistence of SignApksBuilder configuration in a Jenkins job.
+     * 
+     * This test method creates a SignApksBuilder instance, sets various properties, adds it to a 
+     * FreeStyleProject, submits the configuration through a web form, and then compares the original 
+     * and submitted instances to ensure that all properties are correctly persisted.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void identitySubmission() throws Exception {
         SignApksBuilder original = new SignApksBuilder();
@@ -583,6 +592,13 @@ public class SignApksBuilderTest {
         assertThat(submitted.getSignedApkMapping(), instanceOf(original.getSignedApkMapping().getClass()));
     }
 
+    /**
+     * Tests the identity submission of a SignApksBuilder with a single old signing entry.
+     * This method verifies that the SignApksBuilder correctly handles the configuration
+     * and submission of a single APK signing entry through the Jenkins web interface.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void identitySubmissionWithSingleOldSigningEntry() throws Exception {
         Apk entry = new Apk(KEY_STORE_ID, KEY_ALIAS, "**/*-unsigned.apk")
@@ -611,6 +627,15 @@ public class SignApksBuilderTest {
         assertThat(submitted.getSignedApkMapping(), instanceOf(original.getSignedApkMapping().getClass()));
     }
 
+    /**
+     * Tests if the descriptor provides a key store fill method for the SignApksBuilder.
+     * This test method sets up a SignApksBuilder with specific configurations,
+     * creates a FreeStyleProject, adds the builder to the project, and then
+     * verifies the presence and correctness of the key store fill method in the
+     * project's configuration page.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void descriptorProvidesKeyStoreFillMethod() throws Exception {
 
@@ -639,6 +664,13 @@ public class SignApksBuilderTest {
         assertThat(option.getValueAttribute(), equalTo(KEY_STORE_ID));
     }
 
+    /**
+     * Tests the functionality of saving the key store ID when multiple key stores are present.
+     * This method verifies that the selected key store ID is correctly saved and persisted
+     * in the job configuration, even when multiple key store options are available.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void savesTheKeyStoreIdWithMultipleKeyStoresPresent() throws Exception {
         TestKeyStore otherKey = new TestKeyStore(testJenkins, KEY_STORE_RESOURCE, "otherKey", null, getClass().getSimpleName());
@@ -687,6 +719,13 @@ public class SignApksBuilderTest {
         otherKey.removeCredentials();
     }
 
+    /**
+     * Tests that the SignApksBuilder constructor throws an UnsupportedOperationException when
+     * provided with multiple APK entries. This method verifies that the SignApksBuilder
+     * no longer supports multiple entries, as indicated by its name.
+     * 
+     * @throws UnsupportedOperationException Expected to be thrown when multiple entries are provided
+     */
     @Test(expected = UnsupportedOperationException.class)
     public void doesNotSupportMultipleEntriesAnyMore() {
         List<Apk> entries = new ArrayList<>();
@@ -695,6 +734,20 @@ public class SignApksBuilderTest {
         SignApksBuilder builder = new SignApksBuilder(entries);
     }
 
+    /**
+     * Validates the glob patterns used for selecting APKs to sign in a Jenkins job.
+     * 
+     * This method sets up a FreeStyleProject with a SignApksBuilder, configures various
+     * parameters including keystore, key alias, and APK glob patterns. It then builds
+     * the job and performs validation checks on the specified APK glob patterns.
+     * 
+     * The test verifies that:
+     * 1. The job builds successfully
+     * 2. The validation messages for non-matching and matching glob patterns are correct
+     * 3. The validation behavior changes appropriately when files matching the patterns are created
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void validatesAllApksToSignGlobs() throws Exception {
 
@@ -729,6 +782,13 @@ public class SignApksBuilderTest {
         assertThat(pageText, containsString(validationMessage));
     }
 
+    /**
+     * Validates the behavior of the SignApksBuilder when handling a large number of files matching a glob pattern.
+     * This test ensures that the builder gracefully handles the upper bound of file matches without throwing
+     * an InterruptedException, and instead provides a meaningful validation message.
+     * 
+     * @throws Exception If any unexpected error occurs during the test execution
+     */
     @Test
     public void validatingApksToSignHandlesGlobMatchUpperBoundGracefully() throws Exception {
 
@@ -760,6 +820,17 @@ public class SignApksBuilderTest {
         assertThat(pageText, containsString(Messages.validation_globSearchLimitReached(FilePath.VALIDATE_ANT_FILE_MASK_BOUND)));
     }
 
+    /**
+     * Tests if the key store ID is used when the description is not present.
+     * 
+     * This method verifies that when a key store description is not available,
+     * the system falls back to using the key store ID as the display text in
+     * the UI selection element. It sets up a test environment with multiple
+     * key stores, creates a Jenkins freestyle project, and checks the HTML
+     * form for correct key store option representations.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void usesKeyStoreIdIfDescriptionIsNotPresent() throws Exception {
 
@@ -813,6 +884,13 @@ public class SignApksBuilderTest {
         blankPassword.removeCredentials();
     }
 
+    /**
+     * Tests the behavior of SignApksBuilder when the key alias is null or an empty string.
+     * This method verifies that the SignApksBuilder uses a singleton key entry
+     * when the alias is not provided or is an empty string.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void usesSingletonKeyEntryWhenAliasIsNullOrEmptyString() throws Exception {
 
@@ -838,6 +916,14 @@ public class SignApksBuilderTest {
         assertThat(buildArtifact(build, signedApkArtifact), isSignedWith(KEY_STORE_ID, KEY_ALIAS));
     }
 
+    /**
+     * Tests the error handling when the specified key alias is not found in the keystore.
+     * 
+     * This method sets up a SignApksBuilder with a non-existent key alias, creates a FreeStyleProject job,
+     * and verifies that the build fails with the expected error message.
+     * 
+     * @throws Exception If any unexpected error occurs during the test execution
+     */
     @Test
     public void givesMeaningfulErrorWhenKeyStoreDoesNotContainAlias() throws Exception {
 
@@ -856,6 +942,18 @@ public class SignApksBuilderTest {
         testJenkins.assertLogContains(builder.getKeyAlias(), build);
     }
 
+    /**
+     * Tests support for multiple keys in a keystore for signing APKs.
+     * 
+     * This method verifies that the SignApksBuilder can use different keys
+     * from the same keystore to sign APKs. It tests the following:
+     * 1. Creating a keystore with multiple keys
+     * 2. Configuring SignApksBuilder with different key aliases
+     * 3. Building and signing APKs with different keys
+     * 4. Verifying the signed APKs are correctly signed with the specified keys
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void supportsMultipleKeysInKeySotre() throws Exception {
 
@@ -887,6 +985,18 @@ public class SignApksBuilderTest {
         multiKeyStore.removeCredentials();
     }
 
+    /**
+     * Tests the behavior of SignApksBuilder when the alias is null and multiple keys are present in the keystore.
+     * 
+     * This test method verifies that the SignApksBuilder fails appropriately when:
+     * 1. A keystore with multiple keys is used.
+     * 2. The key alias is set to null.
+     * 3. The apksToSign pattern is set to "*-unsigned.apk".
+     * 
+     * The test expects the build to fail and log an UnrecoverableKeyException.
+     * 
+     * @throws Exception If any unexpected error occurs during the test execution
+     */
     @Test
     public void failsWhenAliasIsNullAndMultipleKeysArePresent() throws Exception {
 
@@ -906,6 +1016,15 @@ public class SignApksBuilderTest {
         testJenkins.assertLogContains(UnrecoverableKeyException.class.getName(), build);
     }
 
+    /**
+     * Tests that the key alias is set to an empty string (not null) when the key alias field is left blank.
+     * 
+     * This method verifies the behavior of the SignApksBuilder when the key alias is not specified.
+     * It checks that the key alias is properly handled in the form submission process and
+     * that it is correctly stored as an empty string in the job configuration.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void keyAliasIsEmptyStringNotNullWhenKeyAliasFieldIsBlank() throws Exception {
 

@@ -26,6 +26,16 @@ public class SignApksBuilderCompatibility_2_1_0_Test {
     @Rule
     public JenkinsRule testJenkins = new JenkinsRule();
 
+    /**
+     * Verifies that the SignApksBuilder does not skip zipalign for v2.1.0 builders.
+     * 
+     * This test method checks the configuration of two SignApksBuilder instances
+     * in a FreeStyleProject's builder list. It ensures that both builders have
+     * the correct settings, including keystore IDs, key aliases, APK signing patterns,
+     * archiving options, and that zipalign is not skipped.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     @LocalData
     public void doesNotSkipZipalignFor_v2_1_0_builders() throws Exception {
@@ -52,6 +62,15 @@ public class SignApksBuilderCompatibility_2_1_0_Test {
         assertThat(builder.getSkipZipalign(), is(false));
     }
 
+    /**
+     * Tests the usage of old signed APK mapping for v2.1.0 builders.
+     * 
+     * This method verifies that the SignApksBuilder instances in a FreeStyleProject
+     * are using the UnsignedApkBuilderDirMapping strategy for signed APK mapping.
+     * It checks two builders to ensure they both use the correct mapping strategy.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     @LocalData
     public void usesOldSignedApkMappingFor_v2_1_0_builders() throws Exception {
