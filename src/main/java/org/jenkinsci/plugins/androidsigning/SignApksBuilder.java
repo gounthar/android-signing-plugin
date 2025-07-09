@@ -507,8 +507,8 @@ public class SignApksBuilder extends Builder implements SimpleBuildStep {
                 .setOtherSignersSignaturesPreserved(false)
                 // TODO: add to jenkins descriptor
                 .setV1SigningEnabled(true)
-                .setV2SigningEnabled(true)
-                .setV3SigningEnabled(true);
+                .setV2SigningEnabled(true);
+                // V3 signing not available in apksig 2.3.0
 
             ApkSigner signer = signerBuilder.build();
             try {

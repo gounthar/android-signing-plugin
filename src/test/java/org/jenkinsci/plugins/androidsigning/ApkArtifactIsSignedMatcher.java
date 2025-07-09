@@ -47,9 +47,10 @@ class ApkArtifactIsSignedMatcher extends BaseMatcher<BuildArtifact> {
             if (!result.isVerified) {
                 descText.append(" not verified;");
             }
-            if (!result.isVerifiedV3Scheme) {
-                descText.append(" not verified v3;");
-            }
+            // V3 scheme not available in apksig 2.3.0
+            // if (!result.isVerifiedV3Scheme) {
+            //     descText.append(" not verified v3;");
+            // }
             if (!result.isVerifiedV2Scheme) {
                 descText.append(" not verified v2;");
             }
