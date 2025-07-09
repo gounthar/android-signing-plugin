@@ -38,7 +38,8 @@ class VerifyApkCallable extends MasterToSlaveFileCallable<VerifyApkCallable.Veri
             this.isVerified = result.isVerified();
             this.isVerifiedV1Scheme = result.isVerifiedUsingV1Scheme();
             this.isVerifiedV2Scheme = result.isVerifiedUsingV2Scheme();
-            this.isVerifiedV3Scheme = result.isVerifiedUsingV3Scheme();
+            // V3 scheme not available in apksig 2.3.0
+            this.isVerifiedV3Scheme = false;
             this.certs = result.getSignerCertificates().toArray(new X509Certificate[0]);
             this.containsErrors = result.containsErrors();
             List<String> messages = new ArrayList<>();
