@@ -25,6 +25,16 @@ public class SignApksBuilderCompatibility_2_0_8_Test {
     @Rule
     public JenkinsRule testJenkins = new JenkinsRule();
 
+    /**
+     * Converts version 2.0.8 entries to builders and verifies the conversion process.
+     * 
+     * This test method checks if the FreeStyleProject job correctly converts old
+     * version (2.0.8) entries to the new SignApksBuilder format. It verifies the
+     * number of builders created and their specific properties.
+     * 
+     * @throws URISyntaxException if there's an issue with URI syntax
+     * @throws IOException if there's an I/O error during the test
+     */
     @Test
     @LocalData
     public void converts_v2_0_8_entriesToBuilders() throws URISyntaxException, IOException {
@@ -56,6 +66,16 @@ public class SignApksBuilderCompatibility_2_0_8_Test {
         assertThat(builder.getArchiveSignedApks(), is(false));
     }
 
+    /**
+     * Tests that the zipalign process is not skipped for SignApksBuilder instances in a FreeStyleProject.
+     * 
+     * This test method verifies that for a FreeStyleProject with three SignApksBuilder instances,
+     * none of them are configured to skip the zipalign process. It checks the 'skipZipalign'
+     * property of each builder to ensure it is set to false.
+     * 
+     * @throws URISyntaxException if there's an error with URI syntax
+     * @throws IOException if an I/O error occurs
+     */
     @Test
     @LocalData
     public void doesNotSkipZipalignFor_v2_0_8_builders() throws URISyntaxException, IOException {
@@ -75,6 +95,15 @@ public class SignApksBuilderCompatibility_2_0_8_Test {
         assertThat(builder.getSkipZipalign(), is(false));
     }
 
+    /**
+     * Tests the usage of old signed APK mapping for v2.0.8 builders.
+     * 
+     * This method verifies that the SignApksBuilder instances in the project's
+     * builder list use the UnsignedApkBuilderDirMapping strategy for signed APK mapping.
+     * It checks this for three different builder instances.
+     * 
+     * @throws Exception if an error occurs during the test execution
+     */
     @Test
     @LocalData
     public void usesOldSignedApkMappingFor_v2_0_8_builders() throws Exception {

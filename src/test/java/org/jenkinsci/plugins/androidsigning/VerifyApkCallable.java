@@ -61,6 +61,19 @@ class VerifyApkCallable extends MasterToSlaveFileCallable<VerifyApkCallable.Veri
         this.listener = listener;
     }
 
+    /**
+     * Invokes the APK verification process on the given input APK file.
+     * 
+     * This method uses the ApkVerifier to perform verification on the provided APK file.
+     * It builds an ApkVerifier instance, executes the verification, and returns the result.
+     * If an exception occurs during the verification process, it is logged and rethrown as an IOException.
+     * 
+     * @param inputApkFile The File object representing the APK file to be verified
+     * @param channel The VirtualChannel used for remote execution (not used in this implementation)
+     * @return VerifyResult containing the result of the APK verification process
+     * @throws IOException If an I/O error occurs during the verification process or if the verification fails
+     * @throws InterruptedException If the verification process is interrupted
+     */
     @Override
     public VerifyResult invoke(File inputApkFile, VirtualChannel channel) throws IOException, InterruptedException {
 

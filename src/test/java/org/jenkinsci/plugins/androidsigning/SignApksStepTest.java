@@ -40,6 +40,17 @@ public class SignApksStepTest {
     private PretendSlave slave;
     private FakeZipalign zipalign;
 
+    /**
+     * Sets up the test environment for Android-related Jenkins tests.
+     * 
+     * This method prepares the environment by:
+     * 1. Setting the ANDROID_HOME environment variable
+     * 2. Adding the ANDROID_HOME to Jenkins global node properties
+     * 3. Creating a fake Zipalign tool
+     * 4. Setting up a slave node with the necessary environment
+     * 
+     * @throws Exception If there's an error setting up the environment
+     */
     @Before
     public void setupEnvironment() throws Exception {
         URL androidHomeUrl = getClass().getResource("/android");
@@ -54,6 +65,16 @@ public class SignApksStepTest {
         slave.setLabelString(slave.getLabelString() + " " + getClass().getSimpleName());
     }
 
+    /**
+     * Tests the functionality of the DSL (Domain-Specific Language) for signing Android APKs.
+     * 
+     * This method creates a WorkflowJob, sets up a CpsFlowDefinition with a node that wraps
+     * a CopyTestWorkspace and calls the signAndroidApks step. It then builds the job,
+     * asserts its success, and verifies the expected artifacts are created and properly named.
+     * 
+     * @throws Exception If any error occurs during the test execution
+     * @return void This method doesn't return anything
+     */
     @Test
     public void dslWorks() throws Exception {
         WorkflowJob job = testJenkins.jenkins.createProject(WorkflowJob.class, getClass().getSimpleName());
@@ -82,6 +103,15 @@ public class SignApksStepTest {
         assertThat(zipalign.lastProc.cmds().get(0), startsWith(androidHome));
     }
 
+    /**
+     * Tests if the Android home directory is set from environment variables when not specified in the script.
+     * 
+     * This test method creates a WorkflowJob, sets up a pipeline definition using CpsFlowDefinition,
+     * and executes the job. It then verifies if the APK signing process is successful and if the
+     * Android home directory is correctly set from environment variables.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void setsAndroidHomeFromEnvVarsIfNotSpecifiedInScript() throws Exception {
         WorkflowJob job = testJenkins.jenkins.createProject(WorkflowJob.class, getClass().getSimpleName());
@@ -105,6 +135,16 @@ public class SignApksStepTest {
         assertThat(zipalign.lastProc.cmds().get(0), startsWith(androidHome));
     }
 
+    /**
+     * Tests if the Android zipalign tool is set from environment variables when not specified in the script.
+     * 
+     * This test method verifies that the SignAndroidApks step correctly uses the ANDROID_ZIPALIGN
+     * environment variable to set the zipalign tool path when it's not explicitly specified in the
+     * pipeline script. It sets up a mock environment, creates a test job, and checks the resulting
+     * artifacts and zipalign command.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void setsAndroidZipalignFromEnvVarsIfNotSpecifiedInScript() throws Exception {
         URL altZipalignUrl = getClass().getResource("/alt-zipalign/zipalign");
@@ -135,6 +175,18 @@ public class SignApksStepTest {
         assertThat(zipalign.lastProc.cmds().get(0), startsWith(androidHome));
     }
 
+    /**
+     * Tests that the signAndroidApks step does not use environment variables when the script specifies
+     * ANDROID_HOME or zipalign path explicitly.
+     * 
+     * This method sets up two test scenarios:
+     * 1. Specifies an alternative ANDROID_HOME directory
+     * 2. Specifies an alternative zipalign path
+     * 
+     * In both cases, it verifies that the specified paths are used instead of the environment variables.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void doesNotUseEnvVarsIfScriptSpecifiesAndroidHomeOrZipalign() throws Exception {
         URL altAndroidHomeUrl = getClass().getResource("/win-android");
@@ -182,6 +234,14 @@ public class SignApksStepTest {
         assertThat(zipalign.lastProc.cmds().get(0), startsWith(altZipalign));
     }
 
+    /**
+     * Tests that the signAndroidApks step skips the zipalign process when skipZipalign is set to true.
+     * 
+     * This test method creates a Jenkins workflow job with a pipeline script that uses the signAndroidApks step.
+     * It sets the skipZipalign parameter to true and verifies that the zipalign process is not executed.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void skipsZipalign() throws Exception {
         WorkflowJob job = testJenkins.jenkins.createProject(WorkflowJob.class, getClass().getSimpleName());
@@ -202,6 +262,14 @@ public class SignApksStepTest {
         assertThat(zipalign.lastProc, nullValue());
     }
 
+    /**
+     * Tests that the signed APK mapping defaults to the unsigned APK sibling.
+     * 
+     * This method creates a Jenkins pipeline job that signs an Android APK using the signAndroidApks step,
+     * and then verifies that the signed APK is correctly archived with the expected name.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     */
     @Test
     public void signedApkMappingDefaultsToUnsignedApkSibling() throws Exception {
         WorkflowJob job = testJenkins.jenkins.createProject(WorkflowJob.class, getClass().getSimpleName());
@@ -225,6 +293,16 @@ public class SignApksStepTest {
         assertThat(artifacts.get(0).getFileName(), equalTo("SignApksBuilderTest.apk"));
     }
 
+    /**
+     * Tests the usage of a specified signed APK mapping in the signAndroidApks step.
+     * 
+     * This method creates a Jenkins workflow job, sets up a pipeline definition
+     * that uses the signAndroidApks step with a custom signed APK mapping,
+     * executes the job, and verifies the output artifacts.
+     * 
+     * @throws Exception if any error occurs during the test execution
+     * @return void
+     */
     @Test
     public void usesSpecifiedSignedApkMapping() throws Exception {
         WorkflowJob job = testJenkins.jenkins.createProject(WorkflowJob.class, getClass().getSimpleName());
